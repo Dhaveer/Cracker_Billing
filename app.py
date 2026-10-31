@@ -1,6 +1,6 @@
 import os
 from datetime import date, datetime
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 
 import psycopg
 from psycopg.rows import dict_row
@@ -38,6 +38,8 @@ def init_db():
         );
         """)
         conn.execute("ALTER TABLE sales ADD COLUMN IF NOT EXISTS customer_phone TEXT NOT NULL DEFAULT ''")
+        conn.execute("ALTER TABLE sales ADD COLUMN IF NOT EXISTS discount_percent NUMERIC(5,2) NOT NULL DEFAULT 0")
+        conn.execute("ALTER TABLE sales ADD COLUMN IF NOT EXISTS discount_amount NUMERIC(12,2) NOT NULL DEFAULT 0")
 
 
 def money(value, field):
@@ -143,22 +145,33 @@ def create_sale():
         quantities = {}
         for part in request.form.get("cart", "").split(","):
             if part:
-                pid, qty = part.split(":", 1)
-                quantities[int(pid)] = quantities.get(int(pid), 0) + int(qty)
-        if not quantities or any(q <= 0 for q in quantities.values()):
+                pid, qty, unit_price = part.split(":", 2)
+                pid, qty = int(pid), int(qty)
+                price = money(unit_price, "product price")
+                if pid in quantities and quantities[pid][1] != price:
+                    raise ValueError("A product has conflicting prices in the bill.")
+                quantities[pid] = (quantities.get(pid, (0, price))[0] + qty, price)
+        if not quantities or any(qty <= 0 for qty, _ in quantities.values()):
             raise ValueError("Add at least one product with a valid quantity.")
+        discount_percent = money(request.form.get("discount_percent", "0"), "discount percentage")
+        if discount_percent > 15:
+            raise ValueError("Bill discount cannot exceed 15%.")
         with db() as conn:
-            items, total = [], Decimal("0.00")
-            for pid, qty in quantities.items():
+            items, subtotal = [], Decimal("0.00")
+            for pid, (qty, unit_price) in quantities.items():
                 p = conn.execute("SELECT * FROM products WHERE id=%s AND active", (pid,)).fetchone()
                 if not p:
                     raise ValueError("A product in the bill is unavailable. Refresh and try again.")
-                line_total = p["price"] * qty
-                total += line_total
-                items.append((p, qty, p["price"], line_total))
+                if unit_price > p["price"]:
+                    raise ValueError(f"Price for {p['name']} cannot be higher than its catalogue price.")
+                line_total = unit_price * qty
+                subtotal += line_total
+                items.append((p, qty, unit_price, line_total))
+            discount_amount = (subtotal * discount_percent / Decimal("100")).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+            total = subtotal - discount_amount
             invoice = "INV-" + datetime.now().strftime("%Y%m%d-%H%M%S-%f")
-            sale = conn.execute("INSERT INTO sales(invoice_no,customer,customer_phone,total) VALUES (%s,%s,%s,%s) RETURNING id",
-                                (invoice, request.form.get("customer", "").strip(), request.form.get("customer_phone", "").strip(), total)).fetchone()
+            sale = conn.execute("INSERT INTO sales(invoice_no,customer,customer_phone,total,discount_percent,discount_amount) VALUES (%s,%s,%s,%s,%s,%s) RETURNING id",
+                                (invoice, request.form.get("customer", "").strip(), request.form.get("customer_phone", "").strip(), total, discount_percent, discount_amount)).fetchone()
             for p, qty, price, line_total in items:
                 conn.execute("INSERT INTO sale_items(sale_id,product_id,product_name,barcode,quantity,unit_price,line_total) VALUES (%s,%s,%s,%s,%s,%s,%s)",
                              (sale["id"], p["id"], p["name"], p["barcode"], qty, price, line_total))

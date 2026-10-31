@@ -45,3 +45,9 @@ The CSV has 140 products. `No` is preserved as the source catalogue number; `Typ
 Back up the `Crackers` database regularly from pgAdmin (right-click database → Backup). Keep the backup on a separate drive. The configured PostgreSQL password is the one supplied for your local setup; set a private password if you later change it. Set `FLASK_SECRET` to a random value and keep this service on your trusted local network.
 
 The initial installation of Python packages requires internet unless you already have the packages or use offline installers. After setup, billing runs without internet.
+
+#.\.venv\Scripts\Activate.ps1
+#$securePassword = Read-Host "PostgreSQL password" -AsSecureString
+#$env:PGPASSWORD = [System.Net.NetworkCredential]::new("", $securePassword).Password
+#python .\app.py
+#18Bst025@6

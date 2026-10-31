@@ -4,3 +4,20 @@
 .receipt-brand{text-align:center;border-bottom:1px dashed #bba99a;padding-bottom:10px;margin-bottom:12px}.receipt-brand h1{font-size:1.5rem;margin:0 0 4px}.receipt-brand p{margin:2px;font-size:.9rem}
 .category-buttons{display:flex;flex-wrap:wrap;gap:7px;margin:8px 0 12px}.category-chip{border-radius:999px;background:#f5eee6;color:#593629;padding:8px 12px;font-size:.78rem}.category-chip span{opacity:.7;margin-left:3px}.category-chip.active{background:#7c241a;color:white}.category-products{margin-bottom:18px}.product-choices{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:7px;max-height:350px;overflow:auto;padding:2px}.product-choice{display:grid;grid-template-columns:32px 1fr auto;align-items:center;gap:8px;text-align:left;background:#fff;border:1px solid #eadfd3;border-radius:999px;padding:6px 10px 6px 6px;min-height:48px}.product-choice:hover,.product-choice:focus{border-color:#a63821;background:#fff8ef}.product-number{width:30px;height:30px;border-radius:50%;background:#f4e9db;color:#7c241a;display:grid;place-items:center;font-size:.7rem;font-weight:750}.choice-name{font-size:.78rem;line-height:1.2}.product-choice strong{font-size:.75rem;white-space:nowrap}
 .picker-subtitle{border-top:1px solid #eee5dc;padding-top:16px;margin-top:18px}
+/* Keep product search directly below the current bill in the right column. */
+main{max-width:1760px}
+header{padding-left:max(18px,calc((100% - 1760px)/2));padding-right:max(18px,calc((100% - 1760px)/2))}
+.product-search-panel .secondary{margin:-2px 0 14px}
+.product-search-panel .search-results{margin-top:-8px}
+.unit-price{width:88px;min-width:78px;padding:7px;margin:0}
+.bill-adjustments{display:grid;grid-template-columns:minmax(125px,.7fr) minmax(160px,1fr);gap:14px;align-items:end;margin-top:16px}
+.bill-adjustments label{margin:0}
+.bill-totals{display:grid;gap:5px}
+.bill-totals>div{display:flex;justify-content:space-between;gap:12px}
+.bill-totals span{color:#756b63}
+.bill-totals .final-total{border-top:1px solid #eee5dc;padding-top:7px;margin-top:3px;font-size:1.1rem}
+.bill-totals .final-total span{color:inherit;font-weight:700}
+.checkout-grid{grid-template-columns:minmax(280px,.95fr) minmax(400px,1.3fr) minmax(300px,.95fr);gap:18px;align-items:start}
+@media(max-width:1100px){.checkout-grid{grid-template-columns:minmax(280px,.9fr) minmax(400px,1.3fr)}.product-search-panel{grid-column:2}}
+@media(max-width:850px){.checkout-grid{grid-template-columns:1fr}.product-search-panel{grid-column:auto}.bill-adjustments{grid-template-columns:1fr 1.2fr}}
+@media(max-width:520px){.bill-adjustments{grid-template-columns:1fr}}
