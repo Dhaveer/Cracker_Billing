@@ -5,7 +5,10 @@ const rupees = n => '₹' + Number(n).toFixed(2);
 function priceFor(p) { return Number(p.currentPrice ?? p.price); }
 function addProduct(p) {
   const item = cart.get(p.id) || {...p, currentPrice: Number(p.price), quantity: 0};
-  item.quantity++; cart.set(p.id, item); renderCart();
+  item.quantity++;
+  cart.delete(p.id);
+  cart.set(p.id, item);
+  renderCart();
 }
 async function lookup(code) {
   code = code.trim(); if (!code) return;
@@ -14,7 +17,7 @@ async function lookup(code) {
   finally { barcodeInput.value = ''; barcodeInput.focus(); }
 }
 function renderCart() {
-  const items = [...cart.values()];
+  const items = [...cart.values()].reverse();
   if (!items.length) rows.innerHTML = '<tr><td colspan="6" class="empty">Scan or select a product to begin.</td></tr>';
   else rows.innerHTML = items.map(p => `<tr><td>${escapeHtml(p.name)}</td><td>${escapeHtml(p.category || '')}</td><td><input class="unit-price" aria-label="Unit price for ${escapeHtml(p.name)}" type="number" min="0" max="${Number(p.price)}" step="0.01" value="${priceFor(p).toFixed(2)}" data-action="price" data-id="${p.id}"></td><td><div class="qty"><button type="button" data-action="minus" data-id="${p.id}">−</button><input type="number" min="1" value="${p.quantity}" data-action="qty" data-id="${p.id}"><button type="button" data-action="plus" data-id="${p.id}">+</button></div></td><td>${rupees(priceFor(p) * p.quantity)}</td><td><button type="button" class="link-button danger" data-action="remove" data-id="${p.id}">Remove</button></td></tr>`).join('');
   const total = items.reduce((s,p) => s + priceFor(p) * p.quantity, 0);

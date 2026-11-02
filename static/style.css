@@ -21,3 +21,5 @@ header{padding-left:max(18px,calc((100% - 1760px)/2));padding-right:max(18px,cal
 @media(max-width:1100px){.checkout-grid{grid-template-columns:minmax(280px,.9fr) minmax(400px,1.3fr)}.product-search-panel{grid-column:2}}
 @media(max-width:850px){.checkout-grid{grid-template-columns:1fr}.product-search-panel{grid-column:auto}.bill-adjustments{grid-template-columns:1fr 1.2fr}}
 @media(max-width:520px){.bill-adjustments{grid-template-columns:1fr}}
+@media print{.receipt{width:100%;max-width:700px;margin:0 auto}.receipt td:first-child{white-space:nowrap}}
+.receipt-thanks{margin-bottom:0}.receipt-footer-brand{text-align:center;font-weight:800;margin:4px 0 0}

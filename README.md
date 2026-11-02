@@ -46,8 +46,8 @@ Back up the `Crackers` database regularly from pgAdmin (right-click database →
 
 The initial installation of Python packages requires internet unless you already have the packages or use offline installers. After setup, billing runs without internet.
 
-#.\.venv\Scripts\Activate.ps1
-#$securePassword = Read-Host "PostgreSQL password" -AsSecureString
-#$env:PGPASSWORD = [System.Net.NetworkCredential]::new("", $securePassword).Password
-#python .\app.py
-#18Bst025@6
+.\.venv\Scripts\Activate.ps1
+$securePassword = Read-Host "PostgreSQL password" -AsSecureString
+$env:PGPASSWORD = [System.Net.NetworkCredential]::new("", $securePassword).Password
+python .\app.py
+18Bst025@6
