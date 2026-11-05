@@ -1,6 +1,9 @@
 const cart = new Map();
 const rows = document.getElementById('cartRows');
 const barcodeInput = document.getElementById('barcode');
+const discountModeInput = document.getElementById('discountMode');
+const discountValueInput = document.getElementById('discountValue');
+const discountValueLabel = document.getElementById('discountValueLabel');
 const rupees = n => '₹' + Number(n).toFixed(2);
 function priceFor(p) { return Number(p.currentPrice ?? p.price); }
 function addProduct(p) {
@@ -21,10 +24,15 @@ function renderCart() {
   if (!items.length) rows.innerHTML = '<tr><td colspan="6" class="empty">Scan or select a product to begin.</td></tr>';
   else rows.innerHTML = items.map(p => `<tr><td>${escapeHtml(p.name)}</td><td>${escapeHtml(p.category || '')}</td><td><input class="unit-price" aria-label="Unit price for ${escapeHtml(p.name)}" type="number" min="0" max="${Number(p.price)}" step="0.01" value="${priceFor(p).toFixed(2)}" data-action="price" data-id="${p.id}"></td><td><div class="qty"><button type="button" data-action="minus" data-id="${p.id}">−</button><input type="number" min="1" value="${p.quantity}" data-action="qty" data-id="${p.id}"><button type="button" data-action="plus" data-id="${p.id}">+</button></div></td><td>${rupees(priceFor(p) * p.quantity)}</td><td><button type="button" class="link-button danger" data-action="remove" data-id="${p.id}">Remove</button></td></tr>`).join('');
   const total = items.reduce((s,p) => s + priceFor(p) * p.quantity, 0);
-  const discountInput = document.getElementById('discountPercent');
-  if (Number(discountInput.value) > 15) discountInput.value = '15';
-  const discountPercent = Math.min(15, Math.max(0, Number(discountInput.value) || 0));
-  const discount = Math.round((total * discountPercent / 100 + Number.EPSILON) * 100) / 100;
+  const discountMode = discountModeInput.value;
+  const maxDiscount = discountMode === 'percent' ? 15 : Math.round((total * 0.15 + Number.EPSILON) * 100) / 100;
+  discountValueInput.max = String(maxDiscount);
+  discountValueLabel.textContent = discountMode === 'percent' ? 'Discount (%) · max 15%' : `Discount (₹) · max ${rupees(maxDiscount)}`;
+  if ((Number(discountValueInput.value) || 0) > maxDiscount) discountValueInput.value = String(maxDiscount);
+  const discountValue = Math.min(maxDiscount, Math.max(0, Number(discountValueInput.value) || 0));
+  const discount = discountMode === 'percent'
+    ? Math.round((total * discountValue / 100 + Number.EPSILON) * 100) / 100
+    : Math.round((discountValue + Number.EPSILON) * 100) / 100;
   document.getElementById('subtotalAmount').textContent = rupees(total);
   document.getElementById('billDiscountAmount').textContent = `−${rupees(discount)}`;
   document.getElementById('grandTotal').textContent = rupees(total - discount);
@@ -39,7 +47,8 @@ rows.addEventListener('change', e => {
   if (e.target.dataset.action === 'price') p.currentPrice = Math.min(Number(p.price), Math.max(0, Number(e.target.value) || 0));
   renderCart();
 });
-document.getElementById('discountPercent').addEventListener('input', renderCart);
+discountModeInput.addEventListener('change', renderCart);
+discountValueInput.addEventListener('input', renderCart);
 let scanTimer;
 barcodeInput.addEventListener('input', () => {
   clearTimeout(scanTimer);
