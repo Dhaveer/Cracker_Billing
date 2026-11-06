@@ -25,11 +25,9 @@ function renderCart() {
   else rows.innerHTML = items.map(p => `<tr><td>${escapeHtml(p.name)}</td><td>${escapeHtml(p.category || '')}</td><td><input class="unit-price" aria-label="Unit price for ${escapeHtml(p.name)}" type="number" min="0" max="${Number(p.price)}" step="0.01" value="${priceFor(p).toFixed(2)}" data-action="price" data-id="${p.id}"></td><td><div class="qty"><button type="button" data-action="minus" data-id="${p.id}">−</button><input type="number" min="1" value="${p.quantity}" data-action="qty" data-id="${p.id}"><button type="button" data-action="plus" data-id="${p.id}">+</button></div></td><td>${rupees(priceFor(p) * p.quantity)}</td><td><button type="button" class="link-button danger" data-action="remove" data-id="${p.id}">Remove</button></td></tr>`).join('');
   const total = items.reduce((s,p) => s + priceFor(p) * p.quantity, 0);
   const discountMode = discountModeInput.value;
-  const maxDiscount = discountMode === 'percent' ? 15 : Math.round((total * 0.15 + Number.EPSILON) * 100) / 100;
-  discountValueInput.max = String(maxDiscount);
-  discountValueLabel.textContent = discountMode === 'percent' ? 'Discount (%) · max 15%' : `Discount (₹) · max ${rupees(maxDiscount)}`;
-  if ((Number(discountValueInput.value) || 0) > maxDiscount) discountValueInput.value = String(maxDiscount);
-  const discountValue = Math.min(maxDiscount, Math.max(0, Number(discountValueInput.value) || 0));
+  discountValueInput.removeAttribute('max');
+  discountValueLabel.textContent = discountMode === 'percent' ? 'Discount (%)' : 'Discount (₹)';
+  const discountValue = Math.max(0, Number(discountValueInput.value) || 0);
   const discount = discountMode === 'percent'
     ? Math.round((total * discountValue / 100 + Number.EPSILON) * 100) / 100
     : Math.round((discountValue + Number.EPSILON) * 100) / 100;

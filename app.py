@@ -162,8 +162,6 @@ def create_sale():
         )
         if discount_mode not in {"percent", "amount"}:
             raise ValueError("Choose percentage or rupee discount.")
-        if discount_mode == "percent" and discount_value > 15:
-            raise ValueError("Bill discount cannot exceed 15%.")
         with db() as conn:
             items, subtotal = [], Decimal("0.00")
             for pid, (qty, unit_price) in quantities.items():
@@ -180,9 +178,6 @@ def create_sale():
                 discount_amount = (subtotal * discount_percent / Decimal("100")).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
             else:
                 discount_percent = Decimal("0.00")
-                max_discount = (subtotal * Decimal("0.15")).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-                if discount_value > max_discount:
-                    raise ValueError(f"Rupee discount cannot exceed 15% of the subtotal (₹{max_discount:.2f}).")
                 discount_amount = discount_value
             total = subtotal - discount_amount
             invoice = "INV-" + datetime.now().strftime("%Y%m%d-%H%M%S-%f")
