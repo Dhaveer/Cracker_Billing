@@ -23,4 +23,6 @@ header{padding-left:max(18px,calc((100% - 1760px)/2));padding-right:max(18px,cal
 @media(max-width:850px){.checkout-grid{grid-template-columns:1fr}.product-search-panel{grid-column:auto}.bill-adjustments{grid-template-columns:1fr 1.2fr}}
 @media(max-width:520px){.bill-adjustments{grid-template-columns:1fr}.discount-controls{grid-template-columns:1fr}}
 @media print{.receipt{width:100%;max-width:700px;margin:0 auto}.receipt td:first-child{white-space:nowrap}}
+.receipt table th,.receipt table td{padding:4px 5px;line-height:1.15}
+@media print{.receipt table th,.receipt table td{padding:2px 4px;line-height:1.05}}
 .receipt-thanks{margin-bottom:0}.receipt-footer-brand{text-align:center;font-weight:800;margin:4px 0 0}
